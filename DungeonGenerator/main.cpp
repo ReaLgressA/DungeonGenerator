@@ -1,4 +1,3 @@
-//#define NDEBUG
 #include "VulkanRenderer.h"
 #include "GLRenderer.h"
 

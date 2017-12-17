@@ -1,4 +1,5 @@
 #pragma once
+//#define DEBUG
 #include "Renderer.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -6,10 +7,17 @@
 #include <vector>
 #include <cstring>
 #include <map>
+#include <set>
 
-class VulkanRenderer :
-    public Renderer {
+class VulkanRenderer : public Renderer {
 public:
+    struct QueueFamilyIndices {
+        int graphicsFamily = -1;
+        int presentFamily = -1;
+        bool isComplete() {
+            return graphicsFamily >= 0 && presentFamily >= 0;
+        }
+    };
     VulkanRenderer();
     ~VulkanRenderer();
     void initialize(int wWidth, int wHeight, char* title) override;
@@ -20,11 +28,15 @@ private:
    VkDebugReportCallbackEXT callback;
    GLFWwindow *window = nullptr;
    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+   VkPhysicalDeviceFeatures deviceFeatures = { };
    VkDevice device;
+   VkQueue graphicsQueue;
+   VkQueue presentQueue;
+   VkSurfaceKHR surface;
    const std::vector<const char*> validationLayers = {
        "VK_LAYER_LUNARG_standard_validation"
    };
-#ifdef NDEBUG
+#ifdef DEBUG
    const bool enableValidationLayers = false;
 #else
    const bool enableValidationLayers = true;
@@ -42,5 +54,7 @@ private:
    bool isDeviceSuitable(VkPhysicalDevice device);
    int rateDeviceSuitability(VkPhysicalDevice device);
    void createLogicalDevice();
+   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+   void createSurface();
 };
 
